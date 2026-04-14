@@ -11,7 +11,7 @@ public class FrogEnemy : MonoBehaviour
     public float jumpForceY = 5f;
     public float waitTime = 1.5f;
 
-    private bool isGrounded = true;
+    private bool isGrounded = false;
     private bool movingRight = true;
 
     void Awake()
@@ -30,7 +30,7 @@ public class FrogEnemy : MonoBehaviour
     {
         if (isGrounded)
         {
-            anim.Play("FrogIdle");
+            anim.Play("Idle");
         }
     }
 
@@ -40,8 +40,7 @@ public class FrogEnemy : MonoBehaviour
         {
             yield return new WaitUntil(() => isGrounded);
             yield return new WaitForSeconds(waitTime);
-        
-            Jump();           
+            Jump();
         }
     }
 
@@ -50,7 +49,6 @@ public class FrogEnemy : MonoBehaviour
         isGrounded = false;
 
         float direction = movingRight ? 1f : -1f;
-
         sprite.flipX = direction < 0;
 
         rb.linearVelocity = new Vector2(direction * jumpForceX, jumpForceY);
@@ -60,13 +58,17 @@ public class FrogEnemy : MonoBehaviour
         movingRight = !movingRight;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnCollisionStay2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Floor"))
         {
-            if (rb.linearVelocity.y <= 0)
+            foreach (ContactPoint2D contact in collision.contacts)
             {
-                isGrounded = true;
+                if (contact.normal.y > 0.5f)
+                {
+                    isGrounded = true;
+                    return;
+                }
             }
         }
     }

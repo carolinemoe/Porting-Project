@@ -9,11 +9,14 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 10f;
     public float knockbackForceX = 5f;
     public float knockbackForceY = 5f;
+    public int maxJumps = 2;
 
     private Animator anim;
     private SpriteRenderer sprite;
 
     private bool IsHurt = false;
+    private int jumpCount = 0;
+    private bool canDoubleJump = false;
 
     void Awake()
     {
@@ -29,9 +32,22 @@ public class PlayerController : MonoBehaviour
             float move = Input.GetAxis("Horizontal");
             rb.linearVelocity = new Vector2(move * speed, rb.linearVelocity.y);
 
+            if (move < 0)
+            {
+                sprite.flipX = true;
+            }
+            else if (move > 0)
+            {
+                sprite.flipX = false;
+            }
+
             if (Input.GetButtonDown("Jump"))
             {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+                if (jumpCount < maxJumps)
+                {
+                    rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+                    jumpCount++;
+                }
             }
 
             UpdateAnimationState();
@@ -76,6 +92,14 @@ public class PlayerController : MonoBehaviour
                 }
             }
             Hurt(collision.transform);
+        }
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Floor") || collision.gameObject.CompareTag("OneWayPlatform"))
+        {
+            jumpCount = 0;
         }
     }
 
