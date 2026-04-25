@@ -98,6 +98,7 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Floor") || collision.gameObject.CompareTag("OneWayPlatform"))
         {
+            print("Jumps returned");
             jumpCount = 0;
         }
     }
